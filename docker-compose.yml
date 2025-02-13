@@ -17,6 +17,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres -d tenpo_db"]
       interval: 10s
       retries: 5
+      start_period: 20s
 
   app:
     build: .
@@ -30,7 +31,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/tenpo_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-    restart: always
 
 volumes:
   postgres_data:

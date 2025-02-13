@@ -24,8 +24,8 @@ Además, implementa:
 ### 🔹 **Opción 1: Ejecutar Localmente con Maven**
 1️⃣ **Clonar el repositorio:**
 ```sh
-   git clone https://github.com/tu-repo/backend-tenpo.git
-   cd backend-tenpo
+   git clone git@github.com:navajasleandro/calculator-challenge.git
+   cd calculator-challenge
 ```
 
 2️⃣ Instalar dependencias y compilar el proyecto:
@@ -62,21 +62,7 @@ Para detener los contenedores:
   docker-compose down
 ```
 
-
-### 🔹 **Opción 3: Usar la Imagen Publicada en Docker Hub**
-Si solo quieres ejecutar la API sin compilar el código:
-
-```sh
-  docker run -p 8080:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/tenpo_db \
-    -e SPRING_DATASOURCE_USERNAME=postgres \
-    -e SPRING_DATASOURCE_PASSWORD=postgres \
-    --name tenpo-api leandronavajas/tenpo-api:latest
-```
-
-🔗 Imagen disponible en Docker Hub:  
-[leandronavajas/tenpo-api](https://hub.docker.com/r/leandronavajas/tenpo-api)
-
-
+---
 ## 📄 **Documentación de la API**
 
 ### Ejemplos de interaccion con los servicios
