@@ -8,7 +8,7 @@ Además, implementa:
 ✅ **Manejo de errores HTTP y validaciones**  
 ✅ **Rate Limiting (máximo 3 requests por minuto)**  
 ✅ **Paginación en el historial**  
-✅ **Soporte para despliegue en Docker**
+✅ **Soporte para despliegue en Docker**  
 ✅ **Cache compartida con Redis**
 
 ---
