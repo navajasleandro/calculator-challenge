@@ -1,37 +1,37 @@
 package com.tenpo.challenge.backend.config;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+
+import static com.tenpo.challenge.backend.utils.ApiConstants.PERCENTAGE_SHORT_TERM_CACHE;
+import static com.tenpo.challenge.backend.utils.ApiConstants.PERCENTAGE_LONG_TERM_CACHE;
 
 @Configuration
 @EnableCaching
 public class CacheConfig {
 
     @Bean
-    public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration shortTermCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-        cacheManager.registerCustomCache("percentageCache",
-                                         Caffeine.newBuilder()
-                                                 .expireAfterWrite(30, TimeUnit.MINUTES)
-                                                 .maximumSize(1)
-                                                 .build()
-        );
+        RedisCacheConfiguration longTermCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofDays(7))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-        cacheManager.registerCustomCache("percentageHistoricalCache",
-                                         Caffeine.newBuilder()
-                                                 .expireAfterWrite(7, TimeUnit.DAYS)
-                                                 .maximumSize(1)
-                                                 .build()
-        );
-
-        return cacheManager;
+        return RedisCacheManager.builder(redisConnectionFactory)
+                .withCacheConfiguration(PERCENTAGE_SHORT_TERM_CACHE, shortTermCacheConfig)
+                .withCacheConfiguration(PERCENTAGE_LONG_TERM_CACHE, longTermCacheConfig)
+                .build();
     }
 
 }

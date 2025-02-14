@@ -1,7 +1,10 @@
 package com.tenpo.challenge.backend.controller;
 
 import com.tenpo.challenge.backend.entity.ApiCallLog;
+import com.tenpo.challenge.backend.filter.RateLimitFilter;
 import com.tenpo.challenge.backend.service.HistoricalApiCallService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,9 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,19 +37,27 @@ class HistoricalApiCallControllerTest {
     @MockBean
     private HistoricalApiCallService historicalApiCallService;
 
-    private Page<ApiCallLog> mockApiCallLogs;
+    @MockBean
+    private RateLimitFilter rateLimitFilter;
 
     @BeforeEach
-    void setup() {
-        // 🔹 Simulación de datos de la entidad ApiCallLog
+    void setup() throws ServletException, IOException {
         ApiCallLog log1 = new ApiCallLog("/calculate", "num1=10&num2=5", "200 OK", 200);
         ApiCallLog log2 = new ApiCallLog("/calculate", "num1=20&num2=-10", "400 BAD_REQUEST", 400);
 
         List<ApiCallLog> logList = List.of(log1, log2);
-        mockApiCallLogs = new PageImpl<>(logList, PageRequest.of(0, 10), logList.size());
+        Page<ApiCallLog> mockApiCallLogs = new PageImpl<>(logList, PageRequest.of(0, 10), logList.size());
 
-        // 🔹 Mock del método que devuelve Page<ApiCallLog>
         Mockito.when(historicalApiCallService.getAll(any(Pageable.class))).thenReturn(mockApiCallLogs);
+
+        doAnswer(invocation ->
+                     {
+                     FilterChain chain = invocation.getArgument(2);
+                     chain.doFilter(invocation.getArgument(0), invocation.getArgument(1));
+                     return null;
+                     })
+                .when(rateLimitFilter)
+                .doFilter(any(), any(), any());
     }
 
     @Test

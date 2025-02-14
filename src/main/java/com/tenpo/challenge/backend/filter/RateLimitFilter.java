@@ -14,7 +14,7 @@ import java.time.Duration;
 
 @Component
 public class RateLimitFilter implements Filter {
-    private static final int RATE_LIMIT = 30;
+    private static final int RATE_LIMIT = 3;
     private final Bucket bucket;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

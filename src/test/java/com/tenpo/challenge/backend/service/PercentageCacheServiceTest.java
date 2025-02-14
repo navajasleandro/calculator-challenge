@@ -8,14 +8,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import static com.tenpo.challenge.backend.utils.ApiConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class PercentageCacheServiceTest {
 
-    private Cache cache;
-    private Cache historicalCache;
+    private Cache shortTermCache;
+    private Cache longTermCache;
     private PercentageApiClient percentageApiClient;
     private PercentageCacheService percentageCacheService;
 
@@ -23,44 +24,44 @@ class PercentageCacheServiceTest {
     void setUp() {
         // 🔹 Mock de CacheManager y sus cachés
         CacheManager cacheManager = mock(CacheManager.class);
-        cache = mock(Cache.class);
-        historicalCache = mock(Cache.class);
+        shortTermCache = mock(Cache.class);
+        longTermCache = mock(Cache.class);
         percentageApiClient = mock(PercentageApiClient.class);
 
-        when(cacheManager.getCache("percentageCache")).thenReturn(cache);
-        when(cacheManager.getCache("percentageHistoricalCache")).thenReturn(historicalCache);
+        when(cacheManager.getCache(PERCENTAGE_SHORT_TERM_CACHE)).thenReturn(shortTermCache);
+        when(cacheManager.getCache(PERCENTAGE_LONG_TERM_CACHE)).thenReturn(longTermCache);
 
         percentageCacheService = new PercentageCacheService(cacheManager, percentageApiClient);
     }
 
     @Test
     void shouldReturnCachedPercentageWhenAvailable() {
-        when(cache.get(PercentageCacheService.PERCENTAGE_KEY, Double.class)).thenReturn(20.0);
+        when(shortTermCache.get(PERCENTAGE_KEY, Double.class)).thenReturn(20.0);
 
         double result = percentageCacheService.getCachedPercentage();
 
         assertEquals(20.0, result);
-        verify(cache, never()).put(anyString(), anyDouble());
+        verify(shortTermCache, never()).put(anyString(), anyDouble());
         verify(percentageApiClient, never()).getPercentage();
     }
 
     @Test
     void shouldFetchNewPercentageWhenCacheIsEmpty() {
-        when(cache.get(PercentageCacheService.PERCENTAGE_KEY, Double.class)).thenReturn(null);
+        when(shortTermCache.get(PERCENTAGE_KEY, Double.class)).thenReturn(null);
         when(percentageApiClient.getPercentage()).thenReturn(15.5);
 
         double result = percentageCacheService.getCachedPercentage();
 
         assertEquals(15.5, result);
-        verify(cache).put(PercentageCacheService.PERCENTAGE_KEY, 15.5);
-        verify(historicalCache).put(PercentageCacheService.PERCENTAGE_KEY, 15.5);
+        verify(shortTermCache).put(PERCENTAGE_KEY, 15.5);
+        verify(longTermCache).put(PERCENTAGE_KEY, 15.5);
     }
 
     @Test
     void shouldReturnHistoricalValueWhenApiFails() {
-        when(cache.get(PercentageCacheService.PERCENTAGE_KEY, Double.class)).thenReturn(null);
+        when(shortTermCache.get(PERCENTAGE_KEY, Double.class)).thenReturn(null);
         when(percentageApiClient.getPercentage()).thenThrow(new PercentageApiClientException("API error"));
-        when(historicalCache.get(PercentageCacheService.PERCENTAGE_KEY, Double.class)).thenReturn(30.0);
+        when(longTermCache.get(PERCENTAGE_KEY, Double.class)).thenReturn(30.0);
 
         double result = percentageCacheService.getCachedPercentage();
 
@@ -69,9 +70,9 @@ class PercentageCacheServiceTest {
 
     @Test
     void shouldThrowExceptionWhenApiFailsAndNoHistoricalValueExists() {
-        when(cache.get(PercentageCacheService.PERCENTAGE_KEY, Double.class)).thenReturn(null);
+        when(shortTermCache.get(PERCENTAGE_KEY, Double.class)).thenReturn(null);
         when(percentageApiClient.getPercentage()).thenThrow(new PercentageApiClientException("API error"));
-        when(historicalCache.get(PercentageCacheService.PERCENTAGE_KEY, Double.class)).thenReturn(null);
+        when(longTermCache.get(PERCENTAGE_KEY, Double.class)).thenReturn(null);
 
         assertThrows(PercentageCacheServiceException.class, () -> percentageCacheService.getCachedPercentage());
     }
