@@ -21,7 +21,7 @@ Además, implementa:
 
 ---
 
-### 🔹 **Opción 1: Ejecutar Localmente con Maven**
+### 🔹 **Instalacio con Maven**
 1️⃣ **Clonar el repositorio:**
 ```sh
    git clone git@github.com:navajasleandro/calculator-challenge.git
@@ -34,17 +34,7 @@ Además, implementa:
   mvn clean package
 ```
 
-3️⃣ Ejecutar la API:
-
-```sh
-  mvn spring-boot:run
-```
-
-📌 Ahora puedes acceder a la API en:
-
-🔗 http://localhost:8080/swagger-ui/index.html
-
-### 🔹 **Opción 2: Ejecutar con Docker Compose**
+### 🔹 **Ejecutar con Docker Compose**
 📌 Para levantar la API junto con la base de datos PostgreSQL, ejecuta:
 
 ```sh
@@ -55,6 +45,11 @@ Esto ejecutará:
 ✅ PostgreSQL en localhost:5432
 
 ✅ API en localhost:8080
+
+📌 Ahora puedes acceder a la API en:
+
+🔗 http://localhost:8080/swagger-ui/index.html
+
 
 Para detener los contenedores:
 
