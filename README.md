@@ -156,7 +156,7 @@ GET /history?page=0&size=10
 
 - **Spring Boot 3.4.2**
 - **Spring Data JPA**
-- **Spring Cache (Caffeine)**
+- **Redis cache**
 - **Bucket4J (Rate Limiting)**
 - **Springdoc OpenAPI (Swagger)**
 - **PostgreSQL (Docker)**
