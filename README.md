@@ -3,6 +3,7 @@
 ## 📌 Descripción
 Esta API realiza cálculos con un **porcentaje aplicado**, obteniendo dicho porcentaje de un servicio externo.  
 Además, implementa:
+
 ✅ **Historial de llamadas a la API**  
 ✅ **Manejo de errores HTTP y validaciones**  
 ✅ **Rate Limiting (máximo 3 requests por minuto)**  
